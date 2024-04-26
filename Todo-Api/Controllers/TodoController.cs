@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Todo_Api.Data;
 using Todo_Api.Dto;
+using Todo_Api.Helpers;
 using Todo_Api.Mappers;
 
 namespace Todo_Api.Controllers
@@ -19,9 +20,14 @@ namespace Todo_Api.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+		public async Task<IActionResult> GetAll(QueryObject query)
 		{
-			var todos = await _context.Todo.ToListAsync();
+            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+			var todos = await _context.Todo
+                .OrderBy(todo => todo.CreatedAt)
+                .Skip(skipNumber)
+                .Take(query.PageSize)
+                .ToListAsync();
 
 			return Ok(todos);
 		}
@@ -66,8 +72,10 @@ namespace Todo_Api.Controllers
 			todo.Title = todoModel.Title;
 			todo.Description = todoModel.Description;
 			todo.IsCompleted = todoModel.IsCompleted;
+            todo.UpdatedAt = DateTime.UtcNow;
 
-			await _context.SaveChangesAsync();
+
+            await _context.SaveChangesAsync();
 
 			return Ok(todo);
         }

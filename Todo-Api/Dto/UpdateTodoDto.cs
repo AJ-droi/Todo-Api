@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Todo_Api.Dto
 {
-	public class UpdateTodoDto
+    public class UpdateTodoDto
 	{
         public string Title { get; set; } = string.Empty;
 
